@@ -337,11 +337,12 @@ async def _download_generic(url: str):
     os.makedirs(output_dir, exist_ok=True)
 
     ydl_opts = {
-        'outtmpl': f'{output_dir}/{file_key}_%(autonumber)03d.%(ext)s',
+        'outtmpl': f'{output_dir}/{file_key}_001.%(ext)s',
         'quiet': True,
         'no_warnings': True,
-        'format': 'best',
+        'format': 'best[ext=mp4]/best',
         'noplaylist': True,
+        'merge_output_format': 'mp4',
     }
 
     files = []
@@ -350,20 +351,21 @@ async def _download_generic(url: str):
             info = ydl.extract_info(url, download=True)
 
             # yt-dlp indirilen dosyaları bul
-            pattern = os.path.join(output_dir, f"{file_key}_*.*")
+            pattern = os.path.join(output_dir, f"{file_key}_001.*")
             matched = sorted(glob.glob(pattern))
 
             if not matched:
                 raise HTTPException(status_code=404, detail="No media could be downloaded")
 
-            for full_path in matched:
-                filename = os.path.basename(full_path)
-                ext = os.path.splitext(filename)[1].lstrip('.').lower()
-                files.append({
-                    "name": filename,
-                    "path": f"/downloads/{timestamp}/{filename}",
-                    "type": ext
-                })
+            # Sadece final dosyayı al (ara dosyaları atla)
+            final_file = matched[0]
+            filename = os.path.basename(final_file)
+            ext = os.path.splitext(filename)[1].lstrip('.').lower()
+            files.append({
+                "name": filename,
+                "path": f"/downloads/{timestamp}/{filename}",
+                "type": ext
+            })
 
     except yt_dlp.utils.DownloadError as e:
         raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
