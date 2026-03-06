@@ -11,4 +11,4 @@ fake-useragent==2.2.0
 urllib3==2.5.0
 cryptography==46.0.3
 parsel==1.9.1
-yt-dlp==2025.11.12
+yt-dlp>=2026.3.0

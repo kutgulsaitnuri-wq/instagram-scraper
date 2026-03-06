@@ -195,9 +195,12 @@ async def download_media(url: Optional[str] = Query(None, description="Full IG U
     if not shortcode:
         raise HTTPException(status_code=400, detail="No shortcode extracted")
     
-    async with MediaScraper() as scraper:
-        media = await scraper.scrape(shortcode)
-    
+    try:
+        async with MediaScraper() as scraper:
+            media = await scraper.scrape(shortcode)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Scraping failed: {str(e)}")
+
     if not media.media_urls:
         raise HTTPException(status_code=404, detail="No media URLs found for shortcode")
     
