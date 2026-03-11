@@ -265,6 +265,7 @@ async def _download_instagram(url: Optional[str], shortcode: Optional[str]):
             "files": existing_files,
             "dir": None,
             "preview_thumbnail": media.thumbnail_url,
+            "caption": media.caption,
             "cached": True
         }
 
@@ -313,6 +314,7 @@ async def _download_instagram(url: Optional[str], shortcode: Optional[str]):
         "files": files,
         "dir": output_dir,
         "preview_thumbnail": media.thumbnail_url,
+        "caption": media.caption,
         "cached": False
     }
 
@@ -321,7 +323,7 @@ async def _download_generic(url: str):
     """Generic download flow for non-Instagram platforms using yt-dlp directly."""
     file_key = _url_hash(url)
 
-    # Cache kontrolü
+    # Cache kontrolü — caption cache'de yok, boş dön
     existing_files = find_existing_files(file_key)
     if existing_files:
         return {
@@ -329,6 +331,7 @@ async def _download_generic(url: str):
             "files": existing_files,
             "dir": None,
             "preview_thumbnail": None,
+            "caption": "",
             "cached": True
         }
 
@@ -377,14 +380,17 @@ async def _download_generic(url: str):
     cleanup_old_downloads()
 
     thumbnail = None
+    caption = ""
     if info and isinstance(info, dict):
         thumbnail = info.get('thumbnail')
+        caption = info.get('description', '') or ''
 
     return {
         "shortcode": file_key,
         "files": files,
         "dir": output_dir,
         "preview_thumbnail": thumbnail,
+        "caption": caption,
         "cached": False
     }
 

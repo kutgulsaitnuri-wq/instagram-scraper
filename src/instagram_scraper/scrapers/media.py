@@ -89,11 +89,21 @@ class MediaScraper(BaseScraper):
         else:
             raise ValueError("No media URLs found in response")
         
+        # Caption çıkar
+        caption = ""
+        try:
+            edges = data.get("edge_media_to_caption", {}).get("edges", [])
+            if edges:
+                caption = edges[0].get("node", {}).get("text", "")
+        except Exception:
+            pass
+
         return MediaModel(
             shortcode=shortcode,
             media_urls=media_urls,
             thumbnail_url=data.get("thumbnail_src", ""),
-            is_video=bool(data.get("video_versions") or data.get("video_url"))
+            is_video=bool(data.get("video_versions") or data.get("video_url")),
+            caption=caption,
         )
     
     async def _scrape_with_ytdlp(self, shortcode: str) -> MediaModel:
@@ -148,10 +158,13 @@ class MediaScraper(BaseScraper):
             
             if not media_urls:
                 raise ValueError("No media URLs found in yt-dlp response")
-            
+
+            caption = info.get('description', '') or ''
+
             return MediaModel(
                 shortcode=shortcode,
                 media_urls=media_urls,
                 thumbnail_url=thumbnail_url,
-                is_video=is_video
+                is_video=is_video,
+                caption=caption,
             )

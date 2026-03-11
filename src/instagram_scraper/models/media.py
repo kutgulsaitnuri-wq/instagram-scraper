@@ -8,3 +8,4 @@ class MediaModel(BaseModel):
     media_urls: List[str]
     thumbnail_url: str = ""
     is_video: bool = False
+    caption: str = ""
