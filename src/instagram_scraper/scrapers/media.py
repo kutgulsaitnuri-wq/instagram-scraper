@@ -73,8 +73,8 @@ class MediaScraper(BaseScraper):
         if data.get("video_url"):
             media_urls.append(data["video_url"])
         elif data.get("video_versions"):
-            for version in data["video_versions"]:
-                media_urls.append(version["url"])
+            # Sadece en iyi kaliteyi al (ilk eleman)
+            media_urls.append(data["video_versions"][0]["url"])
         elif data.get("edge_sidecar_to_children"):
             for child in data["edge_sidecar_to_children"]["edges"]:
                 child_node = child["node"]
